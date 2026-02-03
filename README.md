@@ -1,151 +1,178 @@
-## 1. Arquitetura da Aplicação
+# Products API
 
-A arquitetura do projeto segue um fluxo clássico, simples e bem definido, com separação clara de responsabilidades entre os componentes.
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue.svg)](https://postgresql.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![AWS Ready](https://img.shields.io/badge/AWS-Ready-orange.svg)](https://aws.amazon.com/)
 
-### Front End
-- **Tecnologia:** React
-- **Responsabilidade:**
-  - Interface do usuário
-  - Consumo da API via HTTP
+Sistema de cadastro e gerenciamento de produtos com arquitetura preparada para deploy na AWS.
 
-### Back End
-- **Tecnologia:** Node.js
-- **Responsabilidade:**
-  - Exposição de uma API REST
-  - Regras de negócio
-  - Comunicação com o banco de dados
+## 📋 Índice
 
-### Banco de Dados
-- **Tecnologia:** PostgreSQL
-- **Observação:** Inicialmente local ou via Docker, com migração futura para **AWS RDS PostgreSQL**
+- [Arquitetura](#-arquitetura)
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Configuração](#-configuração)
+- [Uso](#-uso)
+- [API Endpoints](#-api-endpoints)
+- [Banco de Dados](#-banco-de-dados)
+- [Deploy AWS](#-deploy-aws)
+- [Contribuição](#-contribuição)
 
-### Separação de responsabilidades
-O Front End e o Back End são totalmente desacoplados, o que permite:
-- Deploy independente
-- Escalabilidade separada
-- Criação de labs futuros na AWS utilizando:
-  - ECS
-  - EKS
-  - EC2
-  - Application Load Balancer (ALB)
-
-Essa abordagem está alinhada com boas práticas de **DevOps e Cloud Computing**.
-
----
-
-## 2. Escopo da Aplicação
-
-A aplicação tem como objetivo o **cadastro e gerenciamento de produtos**, mantendo o escopo simples, porém profissional.
-
-### Entidade: Produto
-
-#### Campos mínimos
-- `id`
-- `nome`
-- `valor`
-
-#### Campos adicionais recomendados
-Mesmo em uma aplicação simples, é importante incluir campos de auditoria:
-- `created_at`
-- `updated_at`
-
-#### Estrutura final da entidade
-
-```text
-Produto
-- id (UUID ou SERIAL)
-- nome (string, obrigatório)
-- valor (decimal, obrigatório)
-- created_at (timestamp)
-- updated_at (timestamp)
-```
-
-Essa modelagem prepara a aplicação para:
-
-Auditoria
-
-Observabilidade
-
-Boas práticas de banco de dados
-
-## 3. Roteiro de Desenvolvimento
-
-### Fase 1 – Planejamento do Repositório
-Sugestão de estrutura inicial do projeto:
+## 🏗️ Arquitetura
 
 ```
-produto-app/
-├── backend/
-│   ├── src/
-│   ├── package.json
-│   └── Dockerfile (futuro)
-├── frontend/
-│   ├── src/
-│   ├── package.json
-│   └── Dockerfile (futuro)
-└── docker-compose.yml (opcional no início)
+┌─────────────┐    HTTP/REST    ┌─────────────┐    SQL    ┌─────────────┐
+│   Frontend  │ ──────────────► │   Backend   │ ────────► │ PostgreSQL  │
+│   (React)   │                 │  (Node.js)  │           │             │
+└─────────────┘                 └─────────────┘           └─────────────┘
 ```
-Mesmo que o Docker não seja utilizado inicialmente, pensar nessa estrutura desde o início facilita a evolução do projeto e os futuros labs.
----
 
-### Fase 2 – Back End (Node.js + API REST)
+### Componentes
 
-### 2.1 Stack Sugerida
-* Node.js
+- **Frontend**: Interface React para gerenciamento de produtos
+- **Backend**: API REST em Node.js com validação e regras de negócio
+- **Database**: PostgreSQL para persistência de dados
 
-* Express
+### Benefícios da Arquitetura
 
-* PostgreSQL
+- ✅ Deploy independente dos componentes
+- ✅ Escalabilidade horizontal
+- ✅ Preparado para containers (Docker)
+- ✅ Compatível com serviços AWS (ECS, EKS, RDS)
 
-* ORM:
+## 🛠️ Tecnologias
 
-  * Prisma ou
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: PostgreSQL 14+
+- **ORM**: Prisma
+- **Validação**: Zod
+- **Logs**: Winston
 
-  * Sequelize
+### Frontend
+- **Framework**: React 18+
+- **Build**: Vite
+- **HTTP Client**: Axios
 
-* Validação:
+## 📋 Pré-requisitos
 
-  * Zod ou
+- Node.js 18+ 
+- PostgreSQL 14+
+- npm ou yarn
 
-  * Joi
+## 🚀 Instalação
 
-* Logs:
-
-  * winston ou
-
-  * pino
-
-## 2.2 Endpoints da API
-```text
-GET    /health
-GET    /products
-GET    /products/:id
-POST   /products
-PUT    /products/:id
-DELETE /products/:id
+### 1. Clone o repositório
+```bash
+git clone <repository-url>
+cd products-api
 ```
-Exemplo de payload para criação de produto
 
-```text
+### 2. Instale as dependências
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend
+cd ../frontend
+npm install
+```
+
+### 3. Configure o banco de dados
+```bash
+# Crie o banco PostgreSQL
+createdb products_db
+
+# Execute as migrations
+cd backend
+npm run migrate
+```
+
+## ⚙️ Configuração
+
+### Variáveis de Ambiente
+
+Crie um arquivo `.env` no diretório `backend/`:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/products_db"
+
+# Server
+PORT=3000
+NODE_ENV=development
+
+# Logs
+LOG_LEVEL=info
+```
+
+## 🎯 Uso
+
+### Desenvolvimento
+
+```bash
+# Backend (porta 3000)
+cd backend
+npm run dev
+
+# Frontend (porta 5173)
+cd frontend
+npm run dev
+```
+
+### Produção
+
+```bash
+# Build
+npm run build
+
+# Start
+npm start
+```
+
+## 📡 API Endpoints
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/health` | Health check da API |
+| GET | `/products` | Lista todos os produtos |
+| GET | `/products/:id` | Busca produto por ID |
+| POST | `/products` | Cria novo produto |
+| PUT | `/products/:id` | Atualiza produto |
+| DELETE | `/products/:id` | Remove produto |
+
+### Exemplo de Payload
+
+```json
 {
   "nome": "Teclado Mecânico",
   "valor": 299.90
 }
 ```
 
-Boas práticas desde o início
-* Retornar status HTTP corretos
+### Resposta de Sucesso
 
-* Validar todas as entradas
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "nome": "Teclado Mecânico",
+  "valor": 299.90,
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:30:00Z"
+}
+```
 
-* Nunca confiar nos dados vindos do Front End
+## 🗄️ Banco de Dados
 
-## Fase 3 – Banco de Dados (Postgres local → RDS)
+### Modelo de Dados
 
-## 3.1 Exemplo de tabela SQL
-```text
+```sql
 CREATE TABLE products (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nome VARCHAR(255) NOT NULL,
   valor NUMERIC(10,2) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -153,13 +180,66 @@ CREATE TABLE products (
 );
 ```
 
-Estratégia de evolução
-* Inicialmente: PostgreSQL local ou via Docker
+### Migrations
 
-* Futuro: Migração para AWS RDS PostgreSQL sem necessidade de alterar o código da aplicação
+```bash
+# Criar nova migration
+npm run migrate:create <nome>
 
+# Executar migrations
+npm run migrate
 
-Se quiser, no próximo passo posso:
-- Ajustar o texto para um tom mais **corporativo**
-- Criar um **README completo** (com badges, setup local e roadmap)
-- Ou já incluir uma seção de **arquitetura AWS futura** 🌩️
+# Rollback
+npm run migrate:rollback
+```
+
+## ☁️ Deploy AWS
+
+### Roadmap de Migração
+
+#### Fase 1: Containerização
+- [ ] Dockerfile para backend
+- [ ] Dockerfile para frontend
+- [ ] Docker Compose para desenvolvimento
+
+#### Fase 2: AWS Infrastructure
+- [ ] RDS PostgreSQL
+- [ ] ECS/Fargate para containers
+- [ ] Application Load Balancer
+- [ ] CloudWatch para logs
+
+#### Fase 3: CI/CD
+- [ ] GitHub Actions
+- [ ] ECR para imagens Docker
+- [ ] Terraform para IaC
+
+### Estrutura AWS Planejada
+
+```
+Internet Gateway
+       │
+   ┌───▼───┐
+   │  ALB  │
+   └───┬───┘
+       │
+   ┌───▼───┐    ┌─────────┐
+   │  ECS  │────│   RDS   │
+   │ Tasks │    │PostgreSQL│
+   └───────┘    └─────────┘
+```
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+---
+
+**Desenvolvido para aprendizado de DevOps e AWS**
